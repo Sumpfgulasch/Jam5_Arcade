@@ -27,7 +27,7 @@ function buildReferences(){
     var outputPath = studio.project.filePath;
     var projectName = outputPath.substr(outputPath.lastIndexOf("/") + 1, outputPath.length);
     // CHANGE THIS FOR NEW PROJECTS (Unity project folder name)
-    outputPath = outputPath.substr(0, outputPath.indexOf("OfficeChairAction") + "OfficeChairAction".length) + "/Assets/Scripts/" + headerFileName;
+    outputPath = outputPath.substr(0, outputPath.indexOf("FmodStudio")) + "/Assets/Scripts/" + headerFileName;
 
     var textFile = studio.system.getFile(outputPath);
     if (!textFile.open(studio.system.openMode.WriteOnly)) {
