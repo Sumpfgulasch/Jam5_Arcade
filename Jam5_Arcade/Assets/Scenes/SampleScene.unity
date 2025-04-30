@@ -880,10 +880,14 @@ MonoBehaviour:
   rotationAcceleration: 3000
   rotationDeceleration: 7000
   overheatThresholdSeconds: 1.5
-  overheatDurationSeconds: 3
+  overheatDurationSeconds: 2
   overheatSpeedMultiplier: 0.5
+  beamScaleSpeedThreshold: 180
+  beamScaleMaxSpeed: 720
+  beamScaleMultiplier: 5
+  beamScaleLerpSpeed: 5
   bodyTransform: {fileID: 1325976984}
-  beamTransform: {fileID: 0}
+  beamTransform: {fileID: 2051439395}
 --- !u!114 &1362945688
 MonoBehaviour:
   m_ObjectHideFlags: 0

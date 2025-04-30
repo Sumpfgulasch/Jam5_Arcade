@@ -20,6 +20,13 @@ public class Player : MonoBehaviour
     [Range(0.1f, 1.0f)]
     public float overheatSpeedMultiplier = 0.5f; // Factor to reduce max speed during overheat
 
+    [Header("Beam Collider Scaling")]
+    public float beamScaleSpeedThreshold = 180f; // Speed (deg/sec) above which scaling starts
+    public float beamScaleMaxSpeed = 720f; // Speed (deg/sec) at which max scaling is reached
+    [Range(1f, 5f)]
+    public float beamScaleMultiplier = 2.0f; // How much to multiply the X size at max speed
+    public float beamScaleLerpSpeed = 5f; // How quickly the collider size changes
+
     [Header("References")]
     [SerializeField] private Transform bodyTransform; // Assign the 'Body' child object
     [SerializeField] private Transform beamTransform; // Assign the 'Beam' child object
@@ -34,6 +41,8 @@ public class Player : MonoBehaviour
     private float timeHeldDirection = 0f;
     private int lastInputDirection = 0; // -1 for left, 0 for none, 1 for right
     private float overheatCooldownTimer = 0f;
+    private BoxCollider beamCollider; // Assuming a BoxCollider on the beam
+    private Vector3 originalBeamColliderSize;
 
 
     // FMOD Event Instance for movement sound (if needed for parameter changes)
@@ -68,6 +77,24 @@ public class Player : MonoBehaviour
        {
            Debug.LogError("Rigidbody component not found on Player GameObject!");
        }
+
+       // Get Beam Collider and store original size
+       if (beamTransform != null)
+       {
+           beamCollider = beamTransform.GetComponent<BoxCollider>();
+           if (beamCollider != null)
+           {
+               originalBeamColliderSize = beamCollider.size;
+           }
+           else
+           {
+               Debug.LogError("BoxCollider component not found on Beam GameObject!");
+           }
+       }
+       else
+       {
+            Debug.LogError("Beam Transform not assigned in Player script!");
+       }
    }
 
    void Start()
@@ -89,6 +116,7 @@ public class Player : MonoBehaviour
     {
         // We read input here, but apply physics changes in FixedUpdate
         UpdateAudioParameters(); // Keep audio update here if needed per frame
+        UpdateBeamColliderScale(); // Adjust collider size based on speed
     }
 
     // FixedUpdate is called at a fixed interval - Best for physics operations
@@ -216,6 +244,22 @@ void OnEnable()
         // float totalRotationThisFrame = (keyboardRotationAmount * Mathf.Rad2Deg) + mouseRotationAmount; // Convert keyboard part to degrees if needed? No, Rotate uses degrees.
         // currentRotationSpeed = Mathf.Abs(totalRotationThisFrame / Time.fixedDeltaTime); // Use fixedDeltaTime if combining
     }
+
+    void UpdateBeamColliderScale()
+    {
+        if (beamCollider == null) return;
+
+        // Calculate the scaling factor based on current rotation speed
+        float speedFactor = Mathf.InverseLerp(beamScaleSpeedThreshold, beamScaleMaxSpeed, Mathf.Abs(currentActualRotationSpeed)); // 0 to 1 range based on speed
+        float targetMultiplier = Mathf.Lerp(1f, beamScaleMultiplier, speedFactor); // Interpolate between 1x and max multiplier
+
+        // Calculate the target size
+        Vector3 targetSize = new Vector3(originalBeamColliderSize.x * targetMultiplier, originalBeamColliderSize.y, originalBeamColliderSize.z);
+
+        // Smoothly interpolate the collider size
+        beamCollider.size = Vector3.Lerp(beamCollider.size, targetSize, Time.deltaTime * beamScaleLerpSpeed);
+    }
+
 
     void UpdateAudioParameters()
     {
