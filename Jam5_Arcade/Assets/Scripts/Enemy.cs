@@ -1,3 +1,4 @@
+using System;
 using Audio;
 using UnityEngine;
 using DG.Tweening; // Requires DOTween package
@@ -71,21 +72,8 @@ public class Enemy : MonoBehaviour
      
      void OnCollisionEnter(Collision collision)
      {
-         // Check if the collision is with the 'Body' part and an Enemy
-         if (collision.collider.CompareTag("PlayerBody"))
-         {
-             // Trigger Game Over sequence (e.g., show UI, stop game)
-             FindObjectOfType<GameManager>()?.GameOver(); // Example call
-             Time.timeScale = 0; // Simple pause
-         }
-         // Check if the collision is with the 'Beam' part and an Enemy
-         else if (collision.collider.CompareTag("PlayerBeam"))
-         {
-             Debug.Log("Player Beam collided with Enemy - Destroying Enemy!");
-             // Destroy the enemy GameObject
-             AudioManager.Instance.Play2DAudio(AudioEvent.DestroyEnemy); // Play at collision point
-             Destroy(gameObject); // Destroy self (the enemy)
-             // Optionally play a different sound for beam hit
-         }
+         
      }
+
+     
 }

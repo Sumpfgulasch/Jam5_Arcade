@@ -15,11 +15,18 @@ public class GameManager : MonoBehaviour
         }
         Time.timeScale = 1; // Ensure time scale is normal at start
     }
+void Update()
+    {
+        // Check if the game is paused (game over state) and Space key is pressed
+        if (Time.timeScale == 0 && Input.GetKeyDown(KeyCode.Space))
+        {
+            RestartGame();
+        }
+    }
 
     // Call this method when the player collides with an enemy body
     public void GameOver()
     {
-        Debug.Log("Game Over!");
         AudioManager.Instance.Play2DAudio(AudioEvent.GameOver);
         Time.timeScale = 0; // Pause the game
 

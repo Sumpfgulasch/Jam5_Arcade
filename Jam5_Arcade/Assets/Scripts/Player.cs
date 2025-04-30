@@ -1,3 +1,4 @@
+using System;
 using Audio;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,6 +21,7 @@ public class Player : MonoBehaviour
     private InputAction lookAction;
     private InputAction moveAction; // Action for A/D or joystick rotation
     private float currentRotationSpeed = 0f;
+    private Rigidbody rb; // Reference to the Rigidbody component
 
     // FMOD Event Instance for movement sound (if needed for parameter changes)
     private EventInstance movementSoundInstance;
@@ -45,10 +47,17 @@ public class Player : MonoBehaviour
          if (lookAction == null)
         {
              Debug.LogError("Look action not found in Player Input Actions!");
-        }
-    }
+       }
 
-    void Start()
+       // Get the Rigidbody component
+       rb = GetComponent<Rigidbody>();
+       if (rb == null)
+       {
+           Debug.LogError("Rigidbody component not found on Player GameObject!");
+       }
+   }
+
+   void Start()
     {
         // Fire movement start sound - Assuming Play3DAudio attached to AudioManager is okay for 2D
         if (AudioManager.Instance != null)
@@ -62,10 +71,17 @@ public class Player : MonoBehaviour
         }
     }
 
+    // Update is called once per frame - Good for input reading, audio updates
     void Update()
     {
-        HandleRotation();
-        UpdateAudioParameters();
+        // We read input here, but apply physics changes in FixedUpdate
+        UpdateAudioParameters(); // Keep audio update here if needed per frame
+    }
+
+    // FixedUpdate is called at a fixed interval - Best for physics operations
+    void FixedUpdate()
+    {
+        HandleRotation(); // Apply rotation using Rigidbody
     }
 void OnEnable()
     {
@@ -83,17 +99,24 @@ void OnEnable()
 
     void HandleRotation()
     {
-        // --- Direct Rotation from Keyboard/Joystick ---
-        currentRotationSpeed = 0f;
-        if (moveAction != null)
-        {
-            float moveInputX = moveAction.ReadValue<Vector2>().x;
-            // Negative input rotates left (positive Z angle), positive rotates right (negative Z angle).
-            currentRotationSpeed = -moveInputX * maxRotationSpeed * Time.deltaTime;
-            transform.Rotate(0f, 0f, currentRotationSpeed);
-        }
+        // Apply rotation using Rigidbody in FixedUpdate
+        if (moveAction == null || rb == null) return;
 
-        // // --- Smooth Rotation towards Mouse ---
+        float moveInputX = moveAction.ReadValue<Vector2>().x;
+        // Calculate rotation amount for this fixed frame
+        float rotationAmountDegrees = -moveInputX * maxRotationSpeed * Time.fixedDeltaTime; // Use fixedDeltaTime
+
+        // Create a rotation Quaternion representing the change
+        Quaternion deltaRotation = Quaternion.Euler(0f, 0f, rotationAmountDegrees);
+
+        // Apply the rotation to the Rigidbody
+        rb.MoveRotation(rb.rotation * deltaRotation);
+
+        // Update current rotation speed for audio (absolute value in degrees/sec)
+        currentRotationSpeed = Mathf.Abs(rotationAmountDegrees / Time.fixedDeltaTime);
+
+
+        // --- Smooth Rotation towards Mouse (Commented Out - Needs Rigidbody implementation if re-enabled) ---
         // if (lookAction == null) return; // Only proceed with mouse aiming if action exists
         //
         // // Read mouse position from Input Action
@@ -128,7 +151,7 @@ void OnEnable()
         // // Calculate the *total* speed of rotation for this frame (keyboard + mouse smoothing)
         // // Note: keyboardRotationAmount is already scaled by deltaTime
         // float totalRotationThisFrame = (keyboardRotationAmount * Mathf.Rad2Deg) + mouseRotationAmount; // Convert keyboard part to degrees if needed? No, Rotate uses degrees.
-        // currentRotationSpeed = Mathf.Abs(totalRotationThisFrame / Time.deltaTime);
+        // currentRotationSpeed = Mathf.Abs(totalRotationThisFrame / Time.fixedDeltaTime); // Use fixedDeltaTime if combining
     }
 
     void UpdateAudioParameters()
@@ -140,8 +163,28 @@ void OnEnable()
             AudioManager.Instance.SetGlobalParameter("PlayerRotationSpeed", Mathf.Abs(currentRotationSpeed));
         }
     }
+    
+    // private void OnTriggerEnter(Collider other) {
+    //     Debug.Log("onTriggerEnter");
+    //     // Check if the collision is with the 'Body' part and an Enemy
+    //     if (other.CompareTag("PlayerBody"))
+    //     {
+    //         // Trigger Game Over sequence (e.g., show UI, stop game)
+    //         FindObjectOfType<GameManager>()?.GameOver(); // Example call
+    //         Time.timeScale = 0; // Simple pause
+    //     }
+    //     // Check if the collision is with the 'Beam' part and an Enemy
+    //     else if (other.CompareTag("PlayerBeam"))
+    //     {
+    //         Debug.Log("Player Beam collided with Enemy - Destroying Enemy!");
+    //         // Destroy the enemy GameObject
+    //         AudioManager.Instance.Play2DAudio(AudioEvent.DestroyEnemy); // Play at collision point
+    //         Destroy(gameObject); // Destroy self (the enemy)
+    //         // Optionally play a different sound for beam hit
+    //     }
+    // }
 
-     // Make sure to stop FMOD sounds when the object is destroyed
+    // Make sure to stop FMOD sounds when the object is destroyed
     void OnDestroy()
     {
         if (movementSoundInstance.isValid())
