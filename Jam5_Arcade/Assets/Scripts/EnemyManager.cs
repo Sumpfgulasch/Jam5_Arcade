@@ -10,6 +10,7 @@ public class EnemyManager : MonoBehaviour
     public float spawnCircleRadius = 10f;
     public float spawnInterval = 5f; // Time between spawning new groups
     public float spawnIntervalWithinGroup = 0.2f; // Time between enemies in the same group
+    public float spawnZDepth = 5f;
 
     [Header("Enemy Stats")]
     public int baseEnemyCount = 3; // Initial number of enemies per group
@@ -88,7 +89,7 @@ public class EnemyManager : MonoBehaviour
     IEnumerator SpawnEnemiesInGroup(Transform groupTransform)
     {
         Vector2 randomDirection = Random.insideUnitCircle.normalized;
-        Vector3 firstSpawnPos = (Vector3)(randomDirection * spawnCircleRadius); // Position on the circle
+        Vector3 firstSpawnPos = (Vector3)(randomDirection * spawnCircleRadius) + new Vector3(0, 0, spawnZDepth); // TODO // Position on the circle
         Vector3 spawnOffsetDirection = Random.insideUnitCircle.normalized * 0.5f; // Slight offset direction for the group
 
         for (int i = 0; i < currentEnemyCount; i++)
