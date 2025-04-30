@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mcp-unity": {
+      "command": "node",
+      "args": [
+        "C:/Users/julian_klang-games/Projects/Unity/Jam5_Arcade/Jam5_Arcade/Library/PackageCache/com.gamelovers.mcp-unity@6a10bf1fb9fd/Server/build/index.js"
+      ]
+    }
+  }
+}
