@@ -26,17 +26,17 @@ GameObjects
 
 Scripts
 - Player
-    - onStart: fire a placeholder AudioEvent, using AudioSystem.Play2DAudio (will be AudioEvent.PlayerMovement, doesnt exist yet)
+    - onStart: fire a AudioEvent, using AudioSystem.Play2DAudio (AudioEvent.PlayerMovement)
     - mouse input rotates the player to the mouse position; has max rotation speed (public); deals with delta time
     - movementSpeed tracks the speed of the rotation; is sent to FMOD using AudioSystem.SetLocalParameter
-    - if the "body" part collides with an enemy (probably use tags or layers), then placeholder AudioSystem.Play2DAudio (will be AudioEvent.DestroyEnemy) call & game over screen
+    - if the "body" part collides with an enemy (probably use tags or layers), then AudioSystem.Play2DAudio (AudioEvent.DestroyEnemy) call & game over screen
     - if the "beam" part collides with an enemy (probalby use tags or layers), the enemy is destroyed
 
 - Enemy
     - init function: gets "speed" from outside
     - OnStart: 
         - play small dotween overshoot scale animation, from 0 to origional scale
-        - play placeholder AudioSystem.Play2DAudio call (will be AudioEvent.EnemySpawn)
+        - play AudioSystem.Play2DAudio call (AudioEvent.SpawnEnemy)
     - Update: moves the transform into the direction of the player with a fixed speed ("speed")
 - EnemyManager
     - public spawnCircleRadius field; please visualize it in the Unity Editor with a gizmo circle

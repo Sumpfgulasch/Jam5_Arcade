@@ -31,6 +31,12 @@ public class AudioManager : MonoBehaviour
         instance.start();
         return instance;
     }
+    
+    public EventInstance Play2DAudio(FMOD.GUID audioEvent) {
+        var instance = FMODUnity.RuntimeManager.CreateInstance(audioEvent);
+        instance.start();
+        return instance;
+    }
 
     public void StopAudio(EventInstance instance) {
         if (instance.isValid()) {
